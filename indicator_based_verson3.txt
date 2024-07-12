@@ -214,3 +214,40 @@ if barstate.islast
     table.cell(table_id = testTable, column = 1, row = 2, text = Signal_macd)
     table.cell(table_id = testTable, column = 1, row = 3, text = Signal_bb)
     table.cell(table_id = testTable, column = 1, row = 4, text = Signal_ft)
+
+indicator('Trending Moving Average (TMA)', shorttitle='TMA', overlay=true)
+
+// Parameters
+length = input.int(14, minval=1, title='Length')
+src = close
+
+// Initialize array for TMA calculation
+prices = array.new_float(0)
+
+// Populate array with the desired number of price values
+for i = 0 to math.min(length - 1, bar_index) by 1
+    array.unshift(prices, src[i])
+
+// Calculate the simple moving average (SMA)
+sma = array.avg(prices)
+
+// Calculate the TMA length based on market volatility (customize this logic)
+tma_length = sma > sma[1] ? length + 2 : length - 2
+
+// Calculate the Trending Moving Average (TMA)
+tma = ta.sma(src, tma_length)
+
+// Plot the TMA
+plot(tma, color=color.blue, title='TMA')
+
+// Plot the SMA for reference
+plot(sma, color=color.orange, title='SMA')
+
+// Optional: Add other indicators or conditions as needed
+
+// Optional: Display TMA length on the chart
+label.new(x=bar_index, y=close, style=label.style_label_left, color=color.black, text='TMA Length: ' + str.tostring(tma_length))
+
+// Clean up old labels
+if barstate.islast
+    label.delete(label.newLable[1])
